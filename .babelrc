@@ -3,5 +3,6 @@
     "targets": {
       "node": "6.10"
     }
-  }], "react"]
+  }], "react"],
+  "plugins": ["transform-class-properties"]
 }
