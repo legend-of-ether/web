@@ -32,9 +32,11 @@
     "webpack-dev-server": "^3.1.4"
   },
   "dependencies": {
+    "@legend-of-ether/sol": "^1.0.0",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
     "socket.io-client": "^2.1.1",
-    "util.promisify": "^1.0.0"
+    "util.promisify": "^1.0.0",
+    "web3": "^1.0.0-beta.34"
   }
 }
