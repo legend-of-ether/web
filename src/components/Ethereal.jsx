@@ -43,6 +43,13 @@ export class Ethereal extends React.Component {
         ]
       }))
     })
+    this.props.socket.on('userSignedOff', msg => {
+      const json = JSON.parse(msg)
+      console.log('userSignedOff', msg)
+      this.setState(state => ({
+        players: [...state.players.filter(_ => _.id !== json.id)]
+      }))
+    })
   }
 
   render() {
