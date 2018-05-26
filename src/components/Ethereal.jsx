@@ -15,19 +15,15 @@ export class Ethereal extends React.Component {
     super(props)
     this.onKeyDown = this.onKeyDown.bind(this)
     this.state = {
-      players: [
-        {
-          id: getAccountId(),
-          x: 3,
-          y: 3,
-        },
-        {
-          id: "2",
-          x: 12,
-          y: 7,
-        },
-      ]
+      players: []
     }
+    this.props.socket.on('signInSuccess', msg => {
+      const json = JSON.parse(msg)
+      console.log('signInSuccess', json)
+      this.setState(state => ({
+        players: json
+      }))
+    })
   }
 
   render() {
@@ -35,7 +31,7 @@ export class Ethereal extends React.Component {
       <main>
         <Keyboard onKeyDown={this.onKeyDown} />
         <header>
-          <h1>Ethereal</h1>
+          <h1>Legend of Ether</h1>
           <h2>A Decentralized MMO Concept</h2>
         </header>
         {
@@ -48,10 +44,12 @@ export class Ethereal extends React.Component {
   }
 
   onKeyDown(event) {
-    this.props.socket.emit('onKeyDown', JSON.stringify({
-      id: this.props.myId,
-      key: event.key,
-    }))
+    if (isArrowKey(event.key)) {
+      this.props.socket.emit('move', JSON.stringify({
+        id: this.props.myId,
+        direction: arrowKeyToDirection(event.key),
+      }))
+    }
     this.setState(state => ({
       players: [
         ...state.players.filter(player => player.id !== this.props.myId),
@@ -75,3 +73,7 @@ const minMax = (min, max, val) => Math.min(Math.max(val, min), max)
 const arrowToNumberX = arrow => arrow === 'ArrowRight' ? 1 : arrow === 'ArrowLeft' ? -1 : 0
 
 const arrowToNumberY = arrow => arrow === 'ArrowDown' ? 1 : arrow === 'ArrowUp' ? -1 : 0
+
+const isArrowKey = key => [ 'ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp' ].includes(key)
+
+const arrowKeyToDirection = key => key.split('Arrow')[1]
