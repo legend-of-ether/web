@@ -11,6 +11,10 @@ const { SOCKET_URL } = process.env
 const socket = IO(SOCKET_URL)
 
 export class Game extends React.Component {
+  static contextTypes = {
+    drizzle: PropTypes.object
+  }
+
   constructor(props) {
     super(props)
     this.onKeyDown = this.onKeyDown.bind(this)
@@ -47,10 +51,16 @@ export class Game extends React.Component {
   }
 
   componentWillReceiveProps() {
-      const { accounts } = this.props
+      const { accounts, contracts, drizzleStatus } = this.props
+      const { drizzle } = this.context
+
       if (accounts && accounts[0]) {
         this.setState({ myId: accounts[0], players: union([...this.state.players, accounts[0]]) })
-        socket.emit('signIn', accounts[0])
+        socket.emit('signIn', accounts[0]) 
+      }
+
+      if (contracts.LegendOfEther.initialized) {
+        drizzle.contracts.LegendOfEther.methods.hello().call().then(result => alert(result))
       }
   }
 
