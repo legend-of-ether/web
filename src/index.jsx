@@ -7,12 +7,16 @@ import { getAccountIdWithAttempts } from './eth/Account'
 
 import './index.css'
 
+const { CONTEXT } = process.env
+
+const socketUrl = CONTEXT ? 'https://legend-of-ether.herokuapp.com/' : 'http://localhost:3000'
+
 async function main() {
   console.log('getting eth id...')
   const id = await getAccountIdWithAttempts()
   console.log('got eth id', id)
 
-  const socket = IO('http://localhost:3000')
+  const socket = IO(socketUrl)
 
   socket.emit('signIn', id)
 
