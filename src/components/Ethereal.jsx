@@ -24,6 +24,26 @@ export class Ethereal extends React.Component {
         players: json
       }))
     })
+    this.props.socket.on('updatePlayerPosition', msg => {
+      const player = JSON.parse(msg)
+      console.log('updatePlayerPosition', player)
+      this.setState(state => ({
+        players: [
+          ...state.players.filter(_ => _.id !== player.id),
+          player,
+        ]
+      }))
+    })
+    this.props.socket.on('userSignedIn', msg => {
+      const player = JSON.parse(msg)
+      console.log('userSignedIn', player)
+      this.setState(state => ({
+        players: [
+          ...state.players,
+          player,
+        ]
+      }))
+    })
   }
 
   render() {
