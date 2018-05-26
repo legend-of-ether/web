@@ -3,7 +3,7 @@ import { render} from 'react-dom'
 import IO from 'socket.io-client'
 import contract from '@legend-of-ether/sol'
 
-import { Ethereal } from './components/Ethereal'
+import { LegendOfEther } from './components/LegendOfEther'
 import { getAccountIdWithAttempts } from './eth/Account'
 
 import './index.css'
@@ -28,7 +28,10 @@ async function main() {
     .contract(contract.abi)
     .at(contract.networks['3'].address)
 
-  render(<Ethereal socket={socket} myId={id} contract={contractInstance} />, document.getElementById("react-root"))
+  render(
+    <LegendOfEther socket={socket} myId={id} contract={contractInstance} />,
+    document.getElementById("react-root"),
+  )
 }
 
 main().catch(console.error)

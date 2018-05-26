@@ -3,10 +3,13 @@ import React from 'react'
 import { Map } from './Map'
 import { Keyboard } from './Keyboard'
 import { MetaMaskRequired } from './MetaMaskRequired'
+import promisify from 'util.promisify'
 
-import './Ethereal.css'
+import './LegendOfEther.css'
 
-export class Ethereal extends React.Component {
+const addressToItems = contract => promisify(contract.addressToItems)
+
+export class LegendOfEther extends React.Component {
 
   constructor(props) {
     super(props)
@@ -14,13 +17,15 @@ export class Ethereal extends React.Component {
     this.state = {
       players: []
     }
-    this.props.socket.on('signInSuccess', msg => {
-      const json = JSON.parse(msg)
-      console.log('signInSuccess', json)
-      this.setState(state => ({
-        players: json
+    this.props.socket.on('signInSuccess', async msg => {
+      const players = JSON.parse(msg)
+      console.log('signInSuccess', players)
+      this.setState(({
+        players
       }))
-      console.log('calling contract', this.props.contract.hello())
+      const swordCount = await addressToItems(this.props.contract)(this.props.myId, 0)
+      const shieldCount = await addressToItems(this.props.contract)(this.props.myId, 1)
+      console.log(`You have ${swordCount} Rusty Swords and ${shieldCount} Rusty Shields`, )
 
     })
     this.props.socket.on('updatePlayerPosition', msg => {
