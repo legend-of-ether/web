@@ -3,15 +3,12 @@ import PropTypes from 'prop-types'
 import IO from 'socket.io-client'
 import { union } from 'lodash'
 
+import { MetaMaskRequired } from '../components/MetaMaskRequired'
 import { Map } from './Map'
 import { Keyboard } from './Keyboard'
 
-const { CONTEXT } = process.env
-
-console.log("CONTEXT ",CONTEXT)
-console.log("process.env ",process.env)
-const socketUrl = CONTEXT ? 'https://legend-of-ether.herokuapp.com/' : 'http://localhost:3000'
-const socket = IO(socketUrl)
+const { SOCKET_URL } = process.env
+const socket = IO(SOCKET_URL)
 
 export class Game extends React.Component {
   constructor(props) {
@@ -58,17 +55,17 @@ export class Game extends React.Component {
   }
 
   render() {
-    const { drizzleStatus } = this.props
+    const { drizzleStatus, accounts } = this.props
 
     return (
         <div>
-            {drizzleStatus ? (
+            {(drizzleStatus && accounts && accounts[0]) ? (
               <div>
                 <Map players={this.state.players} />
                 <Keyboard onKeyDown={this.onKeyDown} />
               </div>
 
-            ): (<p>Loading...</p>)}
+            ): <MetaMaskRequired />}
         </div>
     )
   }
