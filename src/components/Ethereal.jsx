@@ -39,7 +39,7 @@ export class Ethereal extends React.Component {
           <h2>A Decentralized MMO Concept</h2>
         </header>
         {
-          typeof web3 !== 'undefined' ?
+          this.props.myId ?
             <Map players={this.state.players} /> :
             <MetaMaskRequired />
         }
