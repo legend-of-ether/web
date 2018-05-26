@@ -1,7 +1,11 @@
 import { delay } from '../helper'
 
 export function getAccountId() {
-  return typeof web3 !== 'undefined' && web3.eth.accounts[0]
+  return new Promise((resolve) => {
+    if (typeof web3 !== 'undefined') {
+      web3.eth.getAccounts((err, addresses) => resolve(addresses[0]))
+    }
+  })
 }
 
 export async function getAccountIdWithAttempts(attemptNumber = 0) {
@@ -9,7 +13,7 @@ export async function getAccountIdWithAttempts(attemptNumber = 0) {
 
   if (id) {
     return id
-  } else {
+  } else {º
     if (attemptNumber > 6)
       return null
     await delay(500)

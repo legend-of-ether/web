@@ -1,30 +1,30 @@
 import React from 'react'
-
-import { getAccountId } from '../eth/Account'
+import PropTypes from 'prop-types'
+import IO from 'socket.io-client'
+import { union } from 'lodash'
 
 import { Map } from './Map'
 import { Keyboard } from './Keyboard'
-import { MetaMaskRequired } from './MetaMaskRequired'
 
-import './Ethereal.css'
-import IO from 'socket.io-client'
+const { CONTEXT } = process.env
+const socketUrl = CONTEXT ? 'https://legend-of-ether.herokuapp.com/' : 'http://localhost:3000'
+const socket = IO(socketUrl)
 
-export class Ethereal extends React.Component {
-
+export class Game extends React.Component {
   constructor(props) {
     super(props)
     this.onKeyDown = this.onKeyDown.bind(this)
     this.state = {
       players: []
     }
-    this.props.socket.on('signInSuccess', msg => {
+    socket.on('signInSuccess', msg => {
       const json = JSON.parse(msg)
       console.log('signInSuccess', json)
       this.setState(state => ({
         players: json
       }))
     })
-    this.props.socket.on('updatePlayerPosition', msg => {
+    socket.on('updatePlayerPosition', msg => {
       const player = JSON.parse(msg)
       console.log('updatePlayerPosition', player)
       this.setState(state => ({
@@ -34,7 +34,7 @@ export class Ethereal extends React.Component {
         ]
       }))
     })
-    this.props.socket.on('userSignedIn', msg => {
+    socket.on('userSignedIn', msg => {
       const player = JSON.parse(msg)
       console.log('userSignedIn', player)
       this.setState(state => ({
@@ -46,38 +46,44 @@ export class Ethereal extends React.Component {
     })
   }
 
+  componentWillReceiveProps() {
+      const { accounts } = this.props
+      if (accounts && accounts[0]) {
+        this.setState({ myId: accounts[0], players: union([...this.state.players, accounts[0]]) })
+        socket.emit('signIn', accounts[0])
+      }
+  }
+
   render() {
+    const { drizzleStatus } = this.props
+
     return (
-      <main>
-        <Keyboard onKeyDown={this.onKeyDown} />
-        <header>
-          <h1>Legend of Ether</h1>
-          <h2>A Decentralized MMO Concept</h2>
-        </header>
-        {
-          this.props.myId ?
-            <Map players={this.state.players} /> :
-            <MetaMaskRequired />
-        }
-      </main>
+        <div>
+            {drizzleStatus ? (
+              <div>
+                <Map players={this.state.players} />
+                <Keyboard onKeyDown={this.onKeyDown} />
+              </div>
+
+            ): (<p>Loading...</p>)}
+        </div>
     )
   }
 
   onKeyDown(event) {
     if (isArrowKey(event.key)) {
-      this.props.socket.emit('move', JSON.stringify({
-        id: this.props.myId,
+      socket.emit('move', JSON.stringify({
+        id: this.state.myId,
         direction: arrowKeyToDirection(event.key),
       }))
     }
     this.setState(state => ({
       players: [
-        ...state.players.filter(player => player.id !== this.props.myId),
-        movePlayer(state.players.find(player => player.id === this.props.myId), event.key),
+        ...state.players.filter(player => player.id !== this.state.myId),
+        movePlayer(state.players.find(player => player.id === this.state.myId), event.key),
       ]
     }))
   }
-
 }
 
 function movePlayer(player, key) {
