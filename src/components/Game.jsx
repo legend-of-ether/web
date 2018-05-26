@@ -7,6 +7,9 @@ import { Map } from './Map'
 import { Keyboard } from './Keyboard'
 
 const { CONTEXT } = process.env
+
+console.log("CONTEXT ",CONTEXT)
+console.log("process.env ",process.env)
 const socketUrl = CONTEXT ? 'https://legend-of-ether.herokuapp.com/' : 'http://localhost:3000'
 const socket = IO(socketUrl)
 
