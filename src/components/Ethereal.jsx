@@ -1,13 +1,10 @@
 import React from 'react'
 
-import { getAccountId } from '../eth/Account'
-
 import { Map } from './Map'
 import { Keyboard } from './Keyboard'
 import { MetaMaskRequired } from './MetaMaskRequired'
 
 import './Ethereal.css'
-import IO from 'socket.io-client'
 
 export class Ethereal extends React.Component {
 
@@ -23,6 +20,8 @@ export class Ethereal extends React.Component {
       this.setState(state => ({
         players: json
       }))
+      console.log('calling contract', this.props.contract.hello())
+
     })
     this.props.socket.on('updatePlayerPosition', msg => {
       const player = JSON.parse(msg)
