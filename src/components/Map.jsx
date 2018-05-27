@@ -15,7 +15,7 @@ export const Map = (props) => (
                 {
                   props.players
                     .filter(player => player.x === indexX && player.y === indexY)
-                    .map(player => player.id && <div><img src={'https://im5.ezgif.com/tmp/ezgif-5-3b78c38f5c.gif'} /> {player.id.slice(0, 4)} </div>)
+                    .map(player => player.id && <div><img src={'https://raw.githubusercontent.com/legend-of-ether/web/master/hero.gif'} /> {player.id.slice(0, 4)} </div>)
                 }
                 {
                   props.gameItems && props.gameItems
