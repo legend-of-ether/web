@@ -153,7 +153,7 @@ function movePlayer(player, key) {
   return {
     ...player,
     x: minMax(0, 14, player.x + arrowToNumberX(key)),
-    y: minMax(0, 14, player.y + arrowToNumberY(key)),
+    y: minMax(0, 9, player.y + arrowToNumberY(key)),
   }
 }
 
