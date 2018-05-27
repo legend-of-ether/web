@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { itemTypeToUrl } from '../helper'
 import { Map } from './Map'
 import { Keyboard } from './Keyboard'
 import { MetaMaskRequired } from './MetaMaskRequired'
@@ -26,28 +27,31 @@ export class Ethereal extends React.Component {
     this.state = {
       players: [],
       gameItems: [],
+      ownedItemCounts: [],
     }
     this.props.socket.on('signInSuccess', msg => {
       const json = JSON.parse(msg)
       console.log('signInSuccess', json)
+
+      const itemCount = parseInt(this.props.contract.getItemCount())
+      const items = getItems(this.props.contract, itemCount)
+      const ownedItemCounts = Array(itemCount).fill(0).map((el, idx) =>
+        this.props.contract.addressToItems(props.myId, idx).toString()
+      )
+      const hydratedOwnedItemCounts = ownedItemCounts.map((el, idx) => ({
+        name: items[idx].name,
+        count: el,
+      }))
+      console.log('itemCount', itemCount)
+      console.log('items', items)
+      console.log('ownedItemCounts', hydratedOwnedItemCounts)
+      console.log('contractOwner', this.props.contract.owner())
+
       this.setState({
         players: json.players,
         gameItems: json.gameItems,
+        ownedItemCounts: hydratedOwnedItemCounts,
       })
-      if (props.myId) {
-        const itemCount = parseInt(this.props.contract.getItemCount())
-        const items = getItems(this.props.contract, itemCount)
-        const ownedItemCounts = Array(itemCount).fill(0).map((el, idx) =>
-          this.props.contract.addressToItems(props.myId, idx).toString()
-        )
-        const hydratedOwnedItemCounts = ownedItemCounts.map((el, idx) => ({
-          name: items[idx].name,
-          count: el,
-        }))
-        console.log('itemCount', itemCount)
-        console.log('items', items)
-        console.log('ownedItemCounts', hydratedOwnedItemCounts)
-      }
 
     })
     this.props.socket.on('updatePlayerPosition', msg => {
@@ -107,9 +111,15 @@ export class Ethereal extends React.Component {
           <h2>A Decentralized MMO Concept</h2>
         </header>
         {
-          this.props.myId ?
-            <Map players={this.state.players} gameItems={this.state.gameItems} /> :
-            <MetaMaskRequired />
+          this.props.myId
+            ? <div>
+                {
+                  this.state.ownedItemCounts.map((item, index) =>
+                    <div key={index} className={'owned-item-count'} ><img src={itemTypeToUrl[index]} /> { item.count } </div>)
+                }
+                <Map players={this.state.players} gameItems={this.state.gameItems} />
+              </div>
+            : <MetaMaskRequired />
         }
       </main>
     )
