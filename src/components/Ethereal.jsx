@@ -113,10 +113,13 @@ export class Ethereal extends React.Component {
         {
           this.props.myId
             ? <div>
-                {
-                  this.state.ownedItemCounts.map((item, index) =>
-                    <div key={index} className={'owned-item-count'} ><img src={itemTypeToUrl[index]} /> { item.count } </div>)
-                }
+                <div className={'owned-items'}>
+                  {
+                    this.state.ownedItemCounts.map((item, index) =>
+                      <div key={index} className={'owned-item-count'} ><img src={itemTypeToUrl[index]} /> { item.count } </div>)
+                  }
+                  <p>These are the items you own. They are retrieved directly from the contract to the frontend. Currently, they only update on sign in, so refresh the page to see updated values.</p>
+                </div>
                 <Map players={this.state.players} gameItems={this.state.gameItems} />
               </div>
             : <MetaMaskRequired />
