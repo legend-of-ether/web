@@ -63,6 +63,14 @@ export class Ethereal extends React.Component {
         gameItems: [...state.gameItems, json],
       }))
     })
+    this.props.socket.on('itemsGrabbed', msg => {
+      const grabbedItems = JSON.parse(msg)
+      console.log('itemsGrabbed', msg)
+      this.setState(state => ({
+        ...state,
+        gameItems: state.gameItems.filter(gameItem => !grabbedItems.find(_ => _.x === gameItem.x) || !grabbedItems.find(_ => _.y === gameItem.y)),
+      }))
+    })
   }
 
   render() {
