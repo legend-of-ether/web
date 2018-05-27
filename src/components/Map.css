@@ -5,3 +5,8 @@ table td {
     text-align: center;
     font-size: 22px;
 }
+
+table img {
+    width: 40px;
+    vertical-align: middle;
+}

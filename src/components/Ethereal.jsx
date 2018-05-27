@@ -12,14 +12,16 @@ export class Ethereal extends React.Component {
     super(props)
     this.onKeyDown = this.onKeyDown.bind(this)
     this.state = {
-      players: []
+      players: [],
+      gameItems: [],
     }
     this.props.socket.on('signInSuccess', msg => {
       const json = JSON.parse(msg)
       console.log('signInSuccess', json)
-      this.setState(state => ({
-        players: json
-      }))
+      this.setState({
+        players: json.players,
+        gameItems: json.gameItems,
+      })
       console.log('calling contract', this.props.contract.hello())
 
     })
@@ -27,6 +29,7 @@ export class Ethereal extends React.Component {
       const player = JSON.parse(msg)
       console.log('updatePlayerPosition', player)
       this.setState(state => ({
+        ...state,
         players: [
           ...state.players.filter(_ => _.id !== player.id),
           player,
@@ -37,6 +40,7 @@ export class Ethereal extends React.Component {
       const player = JSON.parse(msg)
       console.log('userSignedIn', player)
       this.setState(state => ({
+        ...state,
         players: [
           ...state.players,
           player,
@@ -47,7 +51,16 @@ export class Ethereal extends React.Component {
       const json = JSON.parse(msg)
       console.log('userSignedOff', msg)
       this.setState(state => ({
+        ...state,
         players: [...state.players.filter(_ => _.id !== json.id)]
+      }))
+    })
+    this.props.socket.on('newItem', msg => {
+      const json = JSON.parse(msg)
+      console.log('newItem', msg)
+      this.setState(state => ({
+        ...state,
+        gameItems: [...state.gameItems, json],
       }))
     })
   }
@@ -62,7 +75,7 @@ export class Ethereal extends React.Component {
         </header>
         {
           this.props.myId ?
-            <Map players={this.state.players} /> :
+            <Map players={this.state.players} gameItems={this.state.gameItems} /> :
             <MetaMaskRequired />
         }
       </main>
@@ -70,12 +83,19 @@ export class Ethereal extends React.Component {
   }
 
   onKeyDown(event) {
-    if (isArrowKey(event.key)) {
-      this.props.socket.emit('move', JSON.stringify({
-        id: this.props.myId,
-        direction: arrowKeyToDirection(event.key),
-      }))
-    }
+    if (!isArrowKey(event.key))
+      return
+
+    const movedPlayer = movePlayer(this.state.players.find(player => player.id === this.props.myId), event.key)
+
+    if (this.state.players.filter(player => player.x === movedPlayer.x && player.y === movedPlayer.y).length)
+      return
+
+    this.props.socket.emit('move', JSON.stringify({
+      id: this.props.myId,
+      direction: arrowKeyToDirection(event.key),
+    }))
+
     this.setState(state => ({
       players: [
         ...state.players.filter(player => player.id !== this.props.myId),
