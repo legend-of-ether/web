@@ -6,6 +6,18 @@ import { MetaMaskRequired } from './MetaMaskRequired'
 
 import './Ethereal.css'
 
+function getItems(contract, itemCount) {
+  return Array(itemCount)
+    .fill(0)
+    .map((el, i) => contract.items(i))
+    .map(el => ({
+      name: el[0],
+      imageUrl: el[1],
+      attackBonus: parseInt(el[2].toString()),
+      defenseBonus: parseInt(el[3].toString()),
+    }))
+}
+
 export class Ethereal extends React.Component {
 
   constructor(props) {
@@ -22,7 +34,20 @@ export class Ethereal extends React.Component {
         players: json.players,
         gameItems: json.gameItems,
       })
-      console.log('calling contract', this.props.contract.hello())
+      if (props.myId) {
+        const itemCount = parseInt(this.props.contract.getItemCount())
+        const items = getItems(this.props.contract, itemCount)
+        const ownedItemCounts = Array(itemCount).fill(0).map((el, idx) =>
+          this.props.contract.addressToItems(props.myId, idx).toString()
+        )
+        const hydratedOwnedItemCounts = ownedItemCounts.map((el, idx) => ({
+          name: items[idx].name,
+          count: el,
+        }))
+        console.log('itemCount', itemCount)
+        console.log('items', items)
+        console.log('ownedItemCounts', hydratedOwnedItemCounts)
+      }
 
     })
     this.props.socket.on('updatePlayerPosition', msg => {
