@@ -113,7 +113,7 @@ export class Ethereal extends React.Component {
         {
           this.props.myId
             ? <div>
-                <div>
+                <div className={'owned-items'}>
                   {
                     this.state.ownedItemCounts.map((item, index) =>
                       <div key={index} className={'owned-item-count'} ><img src={itemTypeToUrl[index]} /> { item.count } </div>)
