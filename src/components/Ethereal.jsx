@@ -7,11 +7,13 @@ import { MetaMaskRequired } from './MetaMaskRequired'
 
 import './Ethereal.css'
 
-function getItems(contract, itemCount) {
-  return Array(itemCount)
-    .fill(0)
-    .map((el, i) => contract.items(i))
-    .map(el => ({
+async function getItems(contract, itemCount) {
+  const items = await Promise.all(
+    Array(itemCount)
+      .fill(0)
+      .map((el, i) => contract.methods.items(i).call())
+  )
+  return items.map(el => ({
       name: el[0],
       imageUrl: el[1],
       attackBonus: parseInt(el[2].toString()),
@@ -29,23 +31,23 @@ export class Ethereal extends React.Component {
       gameItems: [],
       ownedItemCounts: [],
     }
-    this.props.socket.on('signInSuccess', msg => {
+    this.props.socket.on('signInSuccess', async msg => {
       const json = JSON.parse(msg)
       console.log('signInSuccess', json)
 
-      const itemCount = parseInt(this.props.contract.getItemCount())
-      const items = getItems(this.props.contract, itemCount)
-      const ownedItemCounts = Array(itemCount).fill(0).map((el, idx) =>
-        this.props.contract.addressToItems(props.myId, idx).toString()
-      )
+      const itemCount = parseInt(await this.props.contract.methods.getItemCount().call())
+      const items = await getItems(this.props.contract, itemCount)
+      const ownedItemCounts = await Promise.all(Array(itemCount).fill(0).map((el, idx) =>
+        this.props.contract.methods.addressToItems(props.myId, idx).call()
+      ))
       const hydratedOwnedItemCounts = ownedItemCounts.map((el, idx) => ({
         name: items[idx].name,
-        count: el,
+        count: parseInt(el),
       }))
       console.log('itemCount', itemCount)
       console.log('items', items)
       console.log('ownedItemCounts', hydratedOwnedItemCounts)
-      console.log('contractOwner', this.props.contract.owner())
+      console.log('contractOwner', await this.props.contract.methods.owner().call())
 
       this.setState({
         players: json.players,
